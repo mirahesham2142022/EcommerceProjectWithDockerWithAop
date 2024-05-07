@@ -1,0 +1,32 @@
+#version: "3.8"
+
+services:
+  db_container:
+    image: postgres
+    container_name: db_container
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=shop
+    ports:
+      - '5432:5432'
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  e-commerce:
+    container_name: e-commerce_container
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '4335:4335'
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db_container:5432/shop
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=admin
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    depends_on:
+      - db_container
+volumes:
+  db_data:
